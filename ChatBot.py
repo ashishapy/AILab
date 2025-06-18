@@ -1,25 +1,36 @@
 from chatterbot import ChatBot
-from chatterbot.trainers import ListTrainer
+import logging
 
-chatbot = ChatBot("Chatu",
-                  preprocessors=['chatterbot.preprocessors.clean_whitespace'],
-                  logic_adapters=[
-                      'chatterbot.logic.MathematicalEvaluation',
-                      'chatterbot.logic.BestMatch',
-                      'chatterbot.logic.TimeLogicAdapter'
-                  ]
-        )
+from chatterbot.trainers import ChatterBotCorpusTrainer
 
-trainer = ListTrainer(chatbot)
+logging.basicConfig(level=logging.CRITICAL)
 
-trainer.train([
-    "Hello",
-    "How are you?",
-    "How can I help you?",
-    "Hi, can I help you?"
-])
+chatB = ChatBot("Chatu",
+                preprocessors=['chatterbot.preprocessors.clean_whitespace'],
+                logic_adapters=['chatterbot.logic.BestMatch',
+                                'chatterbot.logic.MathematicalEvaluation',
+                                'chatterbot.logic.TimeLogicAdapter'])
+
+trainer = ChatterBotCorpusTrainer(chatB)
+
+trainer.train(
+    "chatterbot.corpus.english"
+)
+
+conversation = []
 
 
-response = chatbot.get_response("Good Morning!")
+def converse(quit="quit"):
+    user_input = ""
+    while user_input != quit:
+        user_input = quit
+        try:
+            user_input = input(">")
+        except EOFError:
+            print(user_input)
+        if user_input:
+            while user_input[-1] in "!.":
+                user_input = user_input[:-1]
+            print(chatB.get_response(user_input))
 
-print(response)
+converse()
